@@ -1,9 +1,10 @@
-import bodyParser from "body-parser";
-import dotenv from "dotenv";
-import express from "express";
-import path from "path";
+import './config';
+import bodyParser from 'body-parser';
+import express from 'express';
 
-dotenv.config({ path: "../.env"});
+import { db } from './database';
+
+db.Hosts.sync();
 
 const app = express();
 
