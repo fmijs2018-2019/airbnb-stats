@@ -5,7 +5,8 @@ export const Hosts = sequelize.define('hosts',
     {
         id: {
             type: Sequelize.INTEGER,
-            primaryKey: true
+            primaryKey: true,
+            autoIncrement: true
         },
         url: {
             type: Sequelize.STRING
@@ -19,21 +20,17 @@ export const Hosts = sequelize.define('hosts',
         about: {
             type: Sequelize.TEXT
         },
-        responseRate: {
-            type: Sequelize.INTEGER,
-            allowNull: true
-        },
-        acceptanceRate: {
-            type: Sequelize.STRING
-        },
         pictureUrl: {
-            type: Sequelize.STRING
+            type: Sequelize.STRING,
+            field: 'picture_url',
         },
         listingsCount: {
             type: Sequelize.INTEGER,
-            allowNull: true
+            field: 'listings_count',
+            allowNull: true,
         }
     },
     {
-        freezeTableName: true // Model tableName will be the same as the model name
+        freezeTableName: true, // Model tableName will be the same as the model name
+        timestamps: false
     });
