@@ -1,23 +1,24 @@
 import { sequelize } from '../config';
 import Sequelize from 'sequelize';
 
-export interface INeighborhood {
+export interface IPropertyType {
     id: number,
-    name: string
+    type: string
 }
 
-export const Neighborhoods = sequelize.define<INeighborhood, {}>('neighborhoods',
+export const PropertyTypes = sequelize.define<IPropertyType,{}>('property_types',
     {
         id: {
             type: Sequelize.INTEGER,
             primaryKey: true,
             autoIncrement: true
         },
-        name: {
+        type: {
             type: Sequelize.STRING
-        }
+        },
     },
     {
         freezeTableName: true, // Model tableName will be the same as the model name
         timestamps: false
-    });
+    }
+)

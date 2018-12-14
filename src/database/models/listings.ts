@@ -1,17 +1,49 @@
 import { sequelize } from '../config';
 import Sequelize from 'sequelize';
-import { strictEqual } from 'assert';
 import { Hosts } from './hosts';
 import { Neighborhoods } from './neighborhoods';
+import { PropertyTypes } from './propetyTypes';
+import { RoomTypes } from './roomTypes';
 
-const propertyTypes = ['Apartment', 'Bed and breakfast', 'Houseboat', 'Boat',
-    'Townhouse', 'Guest suite', 'Loft', 'Serviced apartment', 'Other', 'Boutique hotel',
-    'Condominium', 'House', 'Windmill', 'Camper/RV', 'Villa', 'Chalet', 'Nature lodge',
-    'Tiny house', 'Hotel', 'Cabin', 'Guesthouse', 'Lighthouse', 'Yurt', 'Bungalow',
-    'Hostel', 'Cottage', 'Tent', 'Earth house', 'Campsite', 'Bus', 'Castle', 'Barn',
-    'Aparthotel', 'Casa particular (Cuba)', 'Casa particular'];
+export interface IListing {
+    id: number;
+    url: string;
+    name: string;
+    description: string;
+    neighborhoodOverview: string;
+    transit: string;
+    access: string;
+    houseRules: string;
+    pictureUrl: string;
+    hostId: number;
+    street: string;
+    neighborhoodId: number;
+    latitude: number;
+    longitude: number;
+    propertyTypeId: number;
+    roomTypeId: number,
+    accommodates?: number;
+    bathrooms?: number;
+    bedrooms?: number;
+    beds?: number;
+    price?: number;
+    weeklyPrice?: number;
+    mountlyPrice?: number;
+    minimumNights?: number;
+    maximumNights?: number;
+    availability?: number;
+    numberOfReviews?: number;
+    reviewScoresRating?: number;
+    reviewScoresAccuracy?: number;
+    reviewScoresCleanliness?: number;
+    reviewScoresCheckin?: number;
+    reviewScoresCommunication?: number;
+    reviewScoresLocation?: number;
+    reviewScoresValue?: number;
+    reviewsPerMonth?: number;
+}
 
-const Listings = sequelize.define('listings',
+const Listings = sequelize.define<IListing, {}>('listings',
     {
         id: {
             type: Sequelize.INTEGER,
@@ -65,20 +97,26 @@ const Listings = sequelize.define('listings',
             field: 'neighborhood_id'
         },
         latitude: {
-            type: Sequelize.DECIMAL
+            type: Sequelize["DOUBLE PRECISION"]
         },
         longitude: {
-            type: Sequelize.DECIMAL
+            type: Sequelize["DOUBLE PRECISION"]
         },
-        propertyType: {
-            type: Sequelize.ENUM,
-            values: propertyTypes,
-            field: 'property_type'
+        propertyTypeId: {
+            type: Sequelize.INTEGER,
+            references: {
+                model: PropertyTypes,
+                key: 'id'
+            },
+            field: 'property_type_id'
         },
-        roomType: {
-            type: Sequelize.ENUM,
-            values: ['Private room', 'Entire home/apt', 'Shared room'],
-            field: 'room_type'
+        roomTypeId: {
+            type: Sequelize.INTEGER,
+            references: {
+                model: RoomTypes,
+                key: 'id'
+            },
+            field: 'room_type_id'
         },
         accommodates: {
             type: Sequelize.INTEGER,

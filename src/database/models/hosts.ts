@@ -1,7 +1,17 @@
 import { sequelize } from '../config';
 import Sequelize from 'sequelize';
 
-export const Hosts = sequelize.define('hosts',
+export interface IHost {
+    id: number,
+    url: string,
+    name: string,
+    location: string,
+    about: string,
+    pictureUrl: string,
+    listingsCount: number
+}
+
+export const Hosts = sequelize.define<IHost, {}>('hosts',
     {
         id: {
             type: Sequelize.INTEGER,
