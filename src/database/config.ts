@@ -1,3 +1,5 @@
+import pg from 'pg'
+pg.defaults.parseInt8 = true;
 import Sequelize from 'sequelize';
 
 const database = process.env.DBNAME as string;

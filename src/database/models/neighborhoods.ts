@@ -3,7 +3,11 @@ import Sequelize from 'sequelize';
 
 export interface INeighborhood {
     id: number,
-    name: string
+    name: string,
+    geoJson: object,
+    centerLongitude: number,
+    centerLatitude: number,
+    zoom: number
 }
 
 export const Neighborhoods = sequelize.define<INeighborhood, {}>('neighborhoods',
@@ -15,6 +19,21 @@ export const Neighborhoods = sequelize.define<INeighborhood, {}>('neighborhoods'
         },
         name: {
             type: Sequelize.STRING
+        },
+        geoJson: {
+            type: Sequelize.JSON,
+            field: 'geo_json'
+        },
+        centerLongitude: {
+            type: Sequelize["DOUBLE PRECISION"],
+            field: 'center_longitude'
+        },
+        centerLatitude: {
+            type: Sequelize["DOUBLE PRECISION"],
+            field: 'center_latitude'
+        },
+        zoom: {
+            type: Sequelize.FLOAT,
         }
     },
     {
