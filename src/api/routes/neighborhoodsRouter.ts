@@ -4,7 +4,6 @@ import neighborhoodsConstroller from '../controllers/neighborhoodsConstroller';
 const neighborhoodsRouter = express.Router();
 
 neighborhoodsRouter.get('', neighborhoodsConstroller.getAll);
-neighborhoodsRouter.get('/reports', neighborhoodsConstroller.getReportsForAll);
 neighborhoodsRouter.get('/:id', neighborhoodsConstroller.getItem);
 neighborhoodsRouter.get('/:id/reports', neighborhoodsConstroller.getItemReports);
 

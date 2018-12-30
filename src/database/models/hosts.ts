@@ -1,46 +1,63 @@
-import { sequelize } from '../config';
 import Sequelize from 'sequelize';
 
-export interface IHost {
-    id: number,
+export interface IHostAttributes {
+    id?: number,
     url: string,
-    name: string,
-    location: string,
-    about: string,
-    pictureUrl: string,
-    listingsCount: number
+    name?: string,
+    location?: string,
+    about?: string,
+    pictureUrl?: string,
+    listingsCount?: number
 }
 
-export const Hosts = sequelize.define<IHost, {}>('hosts',
-    {
+export interface IHostInstace extends Sequelize.Instance<IHostAttributes>, IHostAttributes {
+};
+
+export const HostsFactory = (sequelize: Sequelize.Sequelize, DataTypes: Sequelize.DataTypes): Sequelize.Model<IHostInstace, IHostAttributes> => {
+    const attributes: Sequelize.DefineModelAttributes<IHostAttributes> = {
         id: {
-            type: Sequelize.INTEGER,
+            type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true
         },
         url: {
-            type: Sequelize.STRING
+            type: DataTypes.STRING,
+            allowNull: false,
         },
         name: {
-            type: Sequelize.STRING
+            type: DataTypes.STRING,
+            allowNull: true,
         },
         location: {
-            type: Sequelize.STRING
+            type: DataTypes.STRING,
+            allowNull: true,
         },
         about: {
-            type: Sequelize.TEXT
+            type: DataTypes.TEXT,
+            allowNull: true,
         },
         pictureUrl: {
-            type: Sequelize.STRING,
+            type: DataTypes.STRING,
             field: 'picture_url',
+            allowNull: true,
         },
         listingsCount: {
-            type: Sequelize.INTEGER,
+            type: DataTypes.INTEGER,
             field: 'listings_count',
             allowNull: true,
         }
-    },
-    {
+    };
+
+    const options: Sequelize.DefineOptions<IHostInstace> = {
         freezeTableName: true, // Model tableName will be the same as the model name
         timestamps: false
-    });
+    };
+
+    const Hosts = sequelize.define<IHostInstace, IHostAttributes>('hosts', attributes, options);
+
+    Hosts.associate = models => {
+        Hosts.hasMany(models.Listings, { as: 'Listings', foreignKey: { name: 'host_id', allowNull: false }, sourceKey: 'id' });
+    }
+
+    return Hosts;
+};

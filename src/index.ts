@@ -1,17 +1,11 @@
 import './config';
 import bodyParser from 'body-parser';
 import express from 'express';
-import listingsRouter from './rest/routes/listingsRouter';
-import neighborhoodsRouter from './rest/routes/neighborhoodsRouter';
-import { db } from './database';
+import listingsRouter from './api/routes/listingsRouter';
+import neighborhoodsRouter from './api/routes/neighborhoodsRouter';
+import db, { syncDatabase } from './database/Db';
 
-db.Neighborhoods.sync();
-db.PropertyTypes.sync();
-db.RoomTypes.sync();
-db.Hosts.sync();
-db.Listings.sync();
-db.Calendars.sync();
-db.Reviews.sync();
+syncDatabase(db);
 
 const app = express();
 

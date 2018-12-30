@@ -1,24 +1,37 @@
-import { sequelize } from '../config';
 import Sequelize from 'sequelize';
 
-export interface IRoomType {
-    id: number,
+export interface IRoomTypeAttributes {
+    id?: number,
     type: string
 }
 
-export const RoomTypes = sequelize.define<IRoomType, {}>('room_types',
-    {
+
+export interface IRoomTypeInstance extends Sequelize.Instance<IRoomTypeAttributes>, IRoomTypeAttributes {
+};
+
+export const RoomTypesFactory = (sequelize: Sequelize.Sequelize, DataTypes: Sequelize.DataTypes): Sequelize.Model<IRoomTypeInstance, IRoomTypeAttributes> => {
+    const attributes: Sequelize.DefineModelAttributes<IRoomTypeAttributes> = {
         id: {
-            type: Sequelize.INTEGER,
+            type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true
         },
         type: {
-            type: Sequelize.STRING
+            type: DataTypes.STRING,
+            allowNull: false,
         },
-    },
-    {
+    };
+
+    const options: Sequelize.DefineOptions<IRoomTypeInstance> = {
         freezeTableName: true, // Model tableName will be the same as the model name
         timestamps: false
     }
-)
+
+    const RoomTypes = sequelize.define<IRoomTypeInstance, IRoomTypeAttributes>('room_types', attributes, options);
+
+    RoomTypes.associate = models => {
+        RoomTypes.hasMany(models.Listings, { as: 'Listings', foreignKey: { name: 'room_type_id', allowNull: false }, sourceKey: 'id' });
+    }
+
+    return RoomTypes;
+};
