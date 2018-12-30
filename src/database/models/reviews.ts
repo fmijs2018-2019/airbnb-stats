@@ -1,9 +1,16 @@
-import { sequelize } from '../config';
 import Sequelize from 'sequelize';
-import { Listings } from './listings';
 
-export const Reviews = sequelize.define('reviews',
-    {
+export interface IReviewAttributes {
+    id?: number;
+    listingId: number;
+    date: Date;
+}
+
+export interface IReviewInstance extends Sequelize.Instance<IReviewAttributes>, IReviewAttributes {
+};
+
+export const ReviewsFactory = (sequelize: Sequelize.Sequelize, DataTypes: Sequelize.DataTypes): Sequelize.Model<IReviewInstance, IReviewAttributes> => {
+    const attributes: Sequelize.DefineModelAttributes<IReviewAttributes> = {
         id: {
             type: Sequelize.INTEGER,
             primaryKey: true,
@@ -12,17 +19,28 @@ export const Reviews = sequelize.define('reviews',
         listingId: {
             type: Sequelize.INTEGER,
             references: {
-                model: Listings,
+                model: 'listings',
                 key: 'id'
             },
-            field: 'listing_id'
+            field: 'listing_id',
+            allowNull: false,
         },
         date: {
-            type: Sequelize.DATE
+            type: Sequelize.DATE,
+            allowNull: false,
         },
-    },
-    {
+    };
+
+    const options: Sequelize.DefineOptions<IReviewInstance> = {
         freezeTableName: true, // Model tableName will be the same as the model name
         timestamps: false
     }
-)
+
+    const Reviews = sequelize.define<IReviewInstance, IReviewAttributes>('reviews', attributes, options);
+
+    Reviews.associate = models => {
+        Reviews.belongsTo(models.Listings, { as: 'Listing', foreignKey: { name: 'listing_id', allowNull: false }, targetKey: 'id' });
+    }
+
+    return Reviews;
+};
