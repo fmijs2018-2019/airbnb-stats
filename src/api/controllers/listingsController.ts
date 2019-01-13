@@ -1,12 +1,14 @@
 import express from 'express';
 import sequelize = require('sequelize');
 import db from '../../database/Db';
+import _ from 'lodash';
 
 export default {
     getLocations: (req: express.Request, res: express.Response): any => {
         db.Listings.findAll({
-            attributes: ['id', 'latitude', 'longitude', 'roomTypeId', 'neighborhoodId']
-        }).then((data) => {
+            attributes: ['id', ['latitude', 'lat'], ['longitude', 'lon'], ['room_type_id', 'rId'], ['neighborhood_id', 'ngId']],
+            raw: true
+        }).then((data: any) => {
             res.json(data);
         })
     },
@@ -20,7 +22,7 @@ export default {
         const skip = req.query['skip'] || 0;
         const take = req.query['take'] || 50;
 
-        const query = 
+        const query =
             `select * 
             from get_listings(
                 skip => ${skip}, 
@@ -31,18 +33,39 @@ export default {
                 pt_ids => ${ptFilter ? `array[${ptFilter.toString()}]` : null},
                 rt_ids => ${rtFilter ? `array[${rtFilter.toString()}]` : null});`;
 
-        db.sequelize.query(query, {type: sequelize.QueryTypes.SELECT })
+        db.sequelize.query(query, { type: sequelize.QueryTypes.SELECT })
             .then((data: any[]) => {
                 const first = data.find(() => true);
                 const totalCount = first && +first['t_count'] || 0;
                 data.forEach(v => delete v['t_count']);
-                
-            res.status(200).send({ 
-                    total_count: totalCount, 
-                    listings: data 
+
+                res.status(200).send({
+                    total_count: totalCount,
+                    listings: data
                 });
             }).catch((error) => {
                 res.status(400).send(error);
             })
+    },
+
+    getFiltersData: (req: express.Request, res: express.Response) => {
+        const roomTypesPromise = db.RoomTypes.findAll({ raw: true });
+        const propertyTypesPromise = db.PropertyTypes.findAll({ raw: true });
+        const neighborhoodsPromise = db.Neighborhoods.findAll({ 
+            attributes: ['id', 'name'],
+            raw: true
+        });
+
+        Promise.all([roomTypesPromise, propertyTypesPromise, neighborhoodsPromise])
+            .then(([roomTypes, propertyTypes, neighborhoods]) => {
+                const filterData = {
+                    roomTypes,
+                    propertyTypes,
+                    neighborhoods,
+                }
+
+                res.json(filterData);
+            })
+            .catch(err => res.status(400).send(err));
     }
 }

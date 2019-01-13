@@ -233,11 +233,11 @@ export const ListingsFactory = (sequelize: Sequelize.Sequelize, DataTypes: Seque
     const Listings = sequelize.define<IListingInstance, IListingAttributes>('listings', attributes, options);
 
     Listings.associate = models => {
-        Listings.hasMany(models.Calendars, { as: 'Calendars', foreignKey: { name: 'listing_id', allowNull: false }, sourceKey: 'id' });
+        Listings.hasMany(models.Calendars, { as: 'calendars', foreignKey: { name: 'listing_id', allowNull: false }, sourceKey: 'id' });
         Listings.belongsTo(models.Neighborhoods, { as: 'neighborhood', foreignKey: { name: 'neighborhood_id', allowNull: false }, targetKey: 'id' });
-        Listings.belongsTo(models.PropertyTypes, { as: 'property_type', foreignKey: { name: 'property_type_id', allowNull: false }, targetKey: 'id' });
+        Listings.belongsTo(models.PropertyTypes, { as: 'propertyType', foreignKey: { name: 'property_type_id', allowNull: false }, targetKey: 'id' });
         Listings.belongsTo(models.Hosts, { as: 'host', foreignKey: { name: 'host_id', allowNull: false }, targetKey: 'id' });
-        Listings.belongsTo(models.RoomTypes, { as: 'room_type', foreignKey: { name: 'room_type_id', allowNull: false }, targetKey: 'id' });
+        Listings.belongsTo(models.RoomTypes, { as: 'roomType', foreignKey: { name: 'room_type_id', allowNull: false }, targetKey: 'id' });
     }
 
     return Listings;

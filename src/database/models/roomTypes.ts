@@ -30,7 +30,7 @@ export const RoomTypesFactory = (sequelize: Sequelize.Sequelize, DataTypes: Sequ
     const RoomTypes = sequelize.define<IRoomTypeInstance, IRoomTypeAttributes>('room_types', attributes, options);
 
     RoomTypes.associate = models => {
-        RoomTypes.hasMany(models.Listings, { as: 'Listings', foreignKey: { name: 'room_type_id', allowNull: false }, sourceKey: 'id' });
+        RoomTypes.hasMany(models.Listings, { as: 'listings', foreignKey: { name: 'room_type_id', allowNull: false }, sourceKey: 'id' });
     }
 
     return RoomTypes;
