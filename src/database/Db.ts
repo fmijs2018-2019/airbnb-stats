@@ -58,7 +58,8 @@ export const syncDatabase = async function (db: IDb) {
             to_date date DEFAULT NULL,
             n_ids integer[] DEFAULT NULL,
             pt_ids integer[] DEFAULT NULL,
-            rt_ids integer[] DEFAULT NULL)
+            rt_ids integer[] DEFAULT NULL,
+            order_by integer DEFAULT 0)
             RETURNS TABLE(
                 id integer, 
                 name character varying, 
@@ -73,7 +74,7 @@ export const syncDatabase = async function (db: IDb) {
                 t_count bigint)
         AS $$
             BEGIN
-                RAISE NOTICE 'Calling get_listings(%, %, %, %, %, %, %)', skip, take, from_date, to_date, n_ids, pt_ids, rt_ids;
+                RAISE NOTICE 'Calling get_listings(%, %, %, %, %, %, %, %)', skip, take, from_date, to_date, n_ids, pt_ids, rt_ids, order_by;
                 RETURN QUERY
                     WITH nh AS (SELECT * 
                                 FROM neighborhoods AS n 
@@ -100,9 +101,21 @@ export const syncDatabase = async function (db: IDb) {
                     LEFT JOIN available as ua
                     ON l.id = ua.listing_id
                     WHERE (from_date IS NULL AND to_date IS NULL) OR ua.listing_id IS NOT NULL
+                    ORDER BY 
+                        CASE order_by
+                        WHEN 1 THEN l.price
+                        WHEN 2 THEN l.accommodates
+                        WHEN 3 THEN l.review_scores_rating
+                        END DESC NULLS LAST,
+                        CASE order_by
+                        WHEN 4 THEN l.price
+                        WHEN 5 THEN l.accommodates
+                        WHEN 6 THEN l.review_scores_rating
+                        ELSE l.id
+                        END ASC NULLS LAST
                     OFFSET skip
                     LIMIT take;
-            END;
+            END
         $$ LANGUAGE plpgsql;`;
 
     await db.sequelize.sync();

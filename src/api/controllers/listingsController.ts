@@ -19,8 +19,9 @@ export default {
         const rtFilter: number[] = req.query['room_types'] || null;
         const fromDate = req.query['from_date'] || null;
         const toDate = req.query['to_date'] || null;
-        const skip = req.query['skip'] || 0;
-        const take = req.query['take'] || 50;
+        const skip:number = req.query['skip'] || 0;
+        const take: number = req.query['take'] || 50;
+        const orderBy: number = req.query['order_by'] || 0;
 
         const query =
             `select * 
@@ -31,7 +32,8 @@ export default {
                 to_date => ${toDate},
                 n_ids => ${neighFilter ? `array[${neighFilter.toString()}]` : null}, 
                 pt_ids => ${ptFilter ? `array[${ptFilter.toString()}]` : null},
-                rt_ids => ${rtFilter ? `array[${rtFilter.toString()}]` : null});`;
+                rt_ids => ${rtFilter ? `array[${rtFilter.toString()}]` : null},
+                order_by => '${orderBy}');`;
 
         db.sequelize.query(query, { type: sequelize.QueryTypes.SELECT })
             .then((data: any[]) => {
