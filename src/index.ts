@@ -4,10 +4,9 @@ import express from 'express';
 import listingsRouter from './api/routes/listingsRouter';
 import neighborhoodsRouter from './api/routes/neighborhoodsRouter';
 import db, { syncDatabase } from './database/Db';
-import jwt from 'express-jwt';
 import helmet = require('helmet');
 import cors = require('cors');
-const jwksRsa = require('jwks-rsa');
+import { checkJwt } from './checkJwt';
 
 syncDatabase(db);
 
@@ -25,21 +24,8 @@ app.use(function (req, res, next) {
     next();
 });
 
-const checkJwt = jwt({
-    secret: jwksRsa.expressJwtSecret({
-        cache: true,
-        rateLimit: true,
-        jwksRequestsPerMinute: 5,
-        jwksUri: `https://airbnb-stats.eu.auth0.com/.well-known/jwks.json`
-    }),
-
-    audience: 'jz1zd7BI5Lx5UjcU3Ua62XkVPqvZOuND',
-    issuer: `https://airbnb-stats.eu.auth0.com/`,
-    algorithms: ['RS256']
-});
-
-app.use('/listings', checkJwt, listingsRouter);
-app.use('/neighborhoods', checkJwt, neighborhoodsRouter);
+app.use('/listings', listingsRouter);
+app.use('/neighborhoods', neighborhoodsRouter);
 
 const port = process.env.PORT || 8080;
 app.listen(port);
