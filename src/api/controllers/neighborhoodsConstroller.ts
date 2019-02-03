@@ -2,17 +2,8 @@ import * as express from 'express';
 import db from '../../database/Db';
 import { INeighborhoodAttributes } from '../../database/models/neighborhoods';
 import _ from 'lodash';
-import { INeighborhoodReports } from '../../contracts/reports';
 
-interface IReport {
-    neighborhood_id: number;
-    name: string;
-    type: string;
-    property_type: string;
-    count: number;
-}
-
-const mapReportsToViewModel = (reports: { byRoomType: any[], byPropType: any[] }): any[] => {
+const mapReportsToViewModel = (reports: { byRoomType: any[], byPropType: any[], byRating: any[] }): any[] => {
     const ngById: any = {};
 
     reports.byRoomType.forEach(r => {
@@ -22,6 +13,7 @@ const mapReportsToViewModel = (reports: { byRoomType: any[], byPropType: any[] }
                 name: r.name,
                 byPropType: [],
                 byRoomType: [],
+                byRating: []
             }
         }
 
@@ -39,6 +31,13 @@ const mapReportsToViewModel = (reports: { byRoomType: any[], byPropType: any[] }
             count: r.count,
         })
     });
+
+    reports.byRating.forEach(r => {
+        ngById[r.neighborhood_id.toString()].byRating.push({
+            rating: r.rating,
+            count: r.count
+        })
+    })
 
     return (Object as any).values(ngById);
 }
@@ -61,6 +60,12 @@ export default {
     },
 
     getReports: (req: express.Request, res: express.Response): any => {
+        const byRatingPromise = db.Listings.findAll({
+            attributes: ['listings.neighborhood_id', ['review_scores_rating', 'rating'], [db.sequelize.fn('COUNT', 'listings.id'), 'count']],
+            group: ['listings.neighborhood_id', 'review_scores_rating'],
+            raw: true
+        });
+
         const byRoomTypePromise = db.Listings.findAll({
             attributes: ['listings.neighborhood_id', 'neighborhood.name', 'roomType.type', 'listings.room_type_id', [db.sequelize.fn('COUNT', 'listings.id'), 'count']],
             include: [
@@ -81,15 +86,22 @@ export default {
             raw: true
         });
 
-        Promise.all([byRoomTypePromise, byPropertyTypePromise])
-            .then(([byRoomType, byPropType]: any) => {
-                res.json(mapReportsToViewModel({byRoomType, byPropType}));
+        Promise.all([byRoomTypePromise, byPropertyTypePromise, byRatingPromise])
+            .then(([byRoomType, byPropType, byRating]: any) => {
+                res.json(mapReportsToViewModel({byRoomType, byPropType, byRating}));
             })
             .catch(err => { res.send(err) });
     },
 
     getItemReports: (req: express.Request, res: express.Response): any => {
         const neighborhoodId: number = req.params['id'];
+
+        const byRatingPromise = db.Listings.findAll({
+            attributes: [['review_scores_rating', 'rating'], [db.sequelize.fn('COUNT', 'listings.id'), 'count']],
+            where: { 'neighborhoodId': neighborhoodId},
+            group: ['review_scores_rating'],
+            raw: true
+        });
 
         const byRoomTypePromise = db.Listings.findAll({
             attributes: ['roomType.type', 'roomType.id', [db.sequelize.fn('COUNT', 'listings.id'), 'count']],
@@ -111,11 +123,12 @@ export default {
             raw: true
         });
 
-        Promise.all([byRoomTypePromise, byPropertyTypePromise])
-            .then(([byRoomType, byPropertyType]) => {
+        Promise.all([byRoomTypePromise, byPropertyTypePromise, byRatingPromise])
+            .then(([byRoomType, byPropertyType, byRating]) => {
                 const itemReports = {
                     byRoomType,
-                    byPropertyType
+                    byPropertyType,
+                    byRating
                 }
                 res.json(itemReports);
             })
