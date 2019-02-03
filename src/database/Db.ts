@@ -56,6 +56,8 @@ export const syncDatabase = async function (db: IDb) {
             take integer,
             from_date date DEFAULT NULL,
             to_date date DEFAULT NULL,
+			from_price double precision DEFAULT NULL,
+			to_price double precision DEFAULT NULL,
             n_ids integer[] DEFAULT NULL,
             pt_ids integer[] DEFAULT NULL,
             rt_ids integer[] DEFAULT NULL,
@@ -74,7 +76,7 @@ export const syncDatabase = async function (db: IDb) {
                 t_count bigint)
         AS $$
             BEGIN
-                RAISE NOTICE 'Calling get_listings(%, %, %, %, %, %, %, %)', skip, take, from_date, to_date, n_ids, pt_ids, rt_ids, order_by;
+                RAISE NOTICE 'Calling get_listings(%, %, %, %, %, %, %, %, %, %)', skip, take, from_date, to_date, from_price, to_price, n_ids, pt_ids, rt_ids, order_by;
                 RETURN QUERY
                     WITH nh AS (SELECT * 
                                 FROM neighborhoods AS n 
@@ -100,7 +102,9 @@ export const syncDatabase = async function (db: IDb) {
                     ON l.room_type_id = rt.id
                     LEFT JOIN available as ua
                     ON l.id = ua.listing_id
-                    WHERE (from_date IS NULL AND to_date IS NULL) OR ua.listing_id IS NOT NULL
+                    WHERE ((from_date IS NULL AND to_date IS NULL) OR ua.listing_id IS NOT NULL) AND
+							(from_price IS NULL OR l.price >= from_price) AND
+							(to_price IS NULL OR l.price <= to_price)
                     ORDER BY 
                         CASE order_by
                         WHEN 1 THEN l.price

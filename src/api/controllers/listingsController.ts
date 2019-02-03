@@ -19,6 +19,8 @@ export default {
         const rtFilter: number[] = req.query['room_types'] || null;
         const fromDate = req.query['from_date'] || null;
         const toDate = req.query['to_date'] || null;
+        const fromPrice = req.query['from_price'] || null;
+        const toPrice = req.query['to_price'] || null;
         const skip:number = req.query['skip'] || 0;
         const take: number = req.query['take'] || 50;
         const orderBy: number = req.query['order_by'] || 0;
@@ -28,8 +30,10 @@ export default {
             from get_listings(
                 skip => ${skip}, 
                 take => ${take},
-                from_date => ${fromDate},
-                to_date => ${toDate},
+                from_date => ${fromDate ? `'${fromDate}'` : null},
+                to_date => ${toDate ? `'${toDate}'` : null},
+                from_price => ${fromPrice},
+                to_price => ${toPrice},
                 n_ids => ${neighFilter ? `array[${neighFilter.toString()}]` : null}, 
                 pt_ids => ${ptFilter ? `array[${ptFilter.toString()}]` : null},
                 rt_ids => ${rtFilter ? `array[${rtFilter.toString()}]` : null},
