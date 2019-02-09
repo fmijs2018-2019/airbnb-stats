@@ -21,7 +21,7 @@ export default {
         const toDate = req.query['to_date'] || null;
         const fromPrice = req.query['from_price'] || null;
         const toPrice = req.query['to_price'] || null;
-        const skip:number = req.query['skip'] || 0;
+        const skip: number = req.query['skip'] || 0;
         const take: number = req.query['take'] || 50;
         const orderBy: number = req.query['order_by'] || 0;
 
@@ -57,7 +57,7 @@ export default {
     getFiltersData: (req: express.Request, res: express.Response) => {
         const roomTypesPromise = db.RoomTypes.findAll({ raw: true });
         const propertyTypesPromise = db.PropertyTypes.findAll({ raw: true });
-        const neighborhoodsPromise = db.Neighborhoods.findAll({ 
+        const neighborhoodsPromise = db.Neighborhoods.findAll({
             attributes: ['id', 'name'],
             raw: true
         });
@@ -73,5 +73,32 @@ export default {
                 res.json(filterData);
             })
             .catch(err => res.status(400).send(err));
-    }
+    },
+
+    getListingDetailed: (req: express.Request, res: express.Response) => {
+        const id = req.params['id'];
+        db.Listings.findOne({
+            include: [
+                { model: db.PropertyTypes, as: 'propertyType', attributes: ['type']},
+                { model: db.RoomTypes, as: 'roomType', attributes: ['type'] },
+                { model: db.Neighborhoods, as: 'neighborhood', attributes: ['name'] }
+            ],
+            where: { 'id': id },
+            raw: true
+        }).then((data: any) => {
+            let result = { ...data };
+            result['properyType'] = data['propertyType.type'];
+            result['roomType'] = data['roomType.type'];
+            result['neighborhood'] = data['neighborhood.name'];
+            delete result['host_id'];
+            delete result['neighborhood_id'];
+            delete result['property_type_id'];
+            delete result['room_type_id'];
+            delete result['propertyType.type'];
+            delete result['roomType.type'];
+            delete result['neighborhood.name'];
+
+            res.json(result);
+        });
+    },
 }

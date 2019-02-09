@@ -88,7 +88,7 @@ export default {
 
         Promise.all([byRoomTypePromise, byPropertyTypePromise, byRatingPromise])
             .then(([byRoomType, byPropType, byRating]: any) => {
-                res.json(mapReportsToViewModel({byRoomType, byPropType, byRating}));
+                res.json(mapReportsToViewModel({ byRoomType, byPropType, byRating }));
             })
             .catch(err => { res.send(err) });
     },
@@ -98,7 +98,7 @@ export default {
 
         const byRatingPromise = db.Listings.findAll({
             attributes: [['review_scores_rating', 'rating'], [db.sequelize.fn('COUNT', 'listings.id'), 'count']],
-            where: { 'neighborhoodId': neighborhoodId},
+            where: { 'neighborhoodId': neighborhoodId },
             group: ['review_scores_rating'],
             raw: true
         });
