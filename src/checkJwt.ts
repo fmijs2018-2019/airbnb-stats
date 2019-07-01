@@ -1,4 +1,4 @@
-const jwksRsa = require('jwks-rsa');
+import jwksRsa from 'jwks-rsa';
 import jwt from 'express-jwt';
 
 export const checkJwt = jwt({

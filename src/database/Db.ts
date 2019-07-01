@@ -16,42 +16,45 @@ const password = process.env.DBPASS as string;
 const hostname = process.env.DBHOSTNAME as string;
 
 export const sequelize = new Sequelize(database, username, password, {
-    dialect: 'postgres',
-    host: hostname,
-    pool: {
-        max: 5,
-        min: 0,
-        idle: 10000
-    }
+	dialect: 'postgres',
+	dialectOptions: {
+		ssl: true
+	},
+	host: hostname,
+	pool: {
+		max: 5,
+		min: 0,
+		idle: 10000
+	},
 });
 
 export interface IDb {
-    sequelize: Sequelize.Sequelize;
-    Sequelize: Sequelize.SequelizeStatic;
-    Listings: Sequelize.Model<IListingInstance, IListingAttributes>;
-    Calendars: Sequelize.Model<ICalendarInstance, ICalendarAttributes>;
-    Neighborhoods: Sequelize.Model<INeighborhoodInstance, INeighborhoodAttributes>;
-    Hosts: Sequelize.Model<IHostInstace, IHostAttributes>;
-    Reviews: Sequelize.Model<IReviewInstance, IReviewAttributes>;
-    PropertyTypes: Sequelize.Model<IPropertyTypeInstance, IPropertyTypeInstance>;
-    RoomTypes: Sequelize.Model<IRoomTypeInstance, IRoomTypeAttributes>;
+	sequelize: Sequelize.Sequelize;
+	Sequelize: Sequelize.SequelizeStatic;
+	Listings: Sequelize.Model<IListingInstance, IListingAttributes>;
+	Calendars: Sequelize.Model<ICalendarInstance, ICalendarAttributes>;
+	Neighborhoods: Sequelize.Model<INeighborhoodInstance, INeighborhoodAttributes>;
+	Hosts: Sequelize.Model<IHostInstace, IHostAttributes>;
+	Reviews: Sequelize.Model<IReviewInstance, IReviewAttributes>;
+	PropertyTypes: Sequelize.Model<IPropertyTypeInstance, IPropertyTypeInstance>;
+	RoomTypes: Sequelize.Model<IRoomTypeInstance, IRoomTypeAttributes>;
 }
 
 const db: IDb = {
-    sequelize,
-    Sequelize,
-    Listings: ListingsFactory(sequelize, Sequelize),
-    Hosts: HostsFactory(sequelize, Sequelize),
-    Reviews: ReviewsFactory(sequelize, Sequelize),
-    Calendars: CalendarsFactory(sequelize, Sequelize),
-    RoomTypes: RoomTypesFactory(sequelize, Sequelize),
-    PropertyTypes: PropertyTypesFactory(sequelize, Sequelize),
-    Neighborhoods: NeighborhoodsFactory(sequelize, Sequelize),
+	sequelize,
+	Sequelize,
+	Listings: ListingsFactory(sequelize, Sequelize),
+	Hosts: HostsFactory(sequelize, Sequelize),
+	Reviews: ReviewsFactory(sequelize, Sequelize),
+	Calendars: CalendarsFactory(sequelize, Sequelize),
+	RoomTypes: RoomTypesFactory(sequelize, Sequelize),
+	PropertyTypes: PropertyTypesFactory(sequelize, Sequelize),
+	Neighborhoods: NeighborhoodsFactory(sequelize, Sequelize),
 };
 
 export const syncDatabase = async function (db: IDb) {
-    const getListingsFunction =
-        `CREATE OR REPLACE FUNCTION public.get_listings(
+	const getListingsFunction =
+		`CREATE OR REPLACE FUNCTION public.get_listings(
             skip integer,
             take integer,
             from_date date DEFAULT NULL,
@@ -122,14 +125,14 @@ export const syncDatabase = async function (db: IDb) {
             END
         $$ LANGUAGE plpgsql;`;
 
-    await db.sequelize.sync();
-    await db.sequelize.query(getListingsFunction);
+	await db.sequelize.sync();
+	await db.sequelize.query(getListingsFunction);
 }
 
 Object.keys(db).forEach(modelName => {
-    if ((db as any)[modelName].associate) {
-        (db as any)[modelName].associate(db);
-    }
+	if ((db as any)[modelName].associate) {
+		(db as any)[modelName].associate(db);
+	}
 });
 
 export default db;
