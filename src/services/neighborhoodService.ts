@@ -5,8 +5,29 @@ import INeighborhoodReportByRoomType from "../dtos/INeighborhoodReportByProperty
 import INeighborhoodReportByPropertyType from "../dtos/INeighborhoodReportByPropertyType";
 import INeighborhoodReportByRating from "../dtos/INeighborhoodReportByRating";
 import INeighborhoodReport from "../dtos/INeighborhoodReport";
+import INeighborhoodSimpleDto from "../dtos/INeighborhoodSimpleDto";
+import INeghborhoodReportByAllTypesOfRatingDto from "../dtos/INeighborhoodReportByAllTypesOfRatingDto";
+import { IAvailabilityReportDto } from "../dtos/IAvailabilityReportDto";
+import INeighborhoodAvailabilityReport from "../dtos/INeighborhoodAvailabilityReport";
+import INeighborhoodPriceReport from "../dtos/INeighborhoodPriceReport";
+import sequelize = require("sequelize");
 
 export const neighborhoodService = {
+	getNeighborhoodsSimpleDto: function (): Bluebird<INeighborhoodSimpleDto[]> {
+		return db.Neighborhoods.findAll({
+			attributes: ['id', 'name'],
+			raw: true
+		}).then(result => {
+			return result.map(v => {
+				const dto: INeighborhoodSimpleDto = {
+					id: v.id || 0,
+					name: v.name
+				};
+				return dto;
+			});
+		});
+	},
+
 	getAllRoomTypeReports: function (): Bluebird<INeighborhoodReportByRoomType[]> {
 		var promise = db.Listings.findAll({
 			attributes: ['listings.neighborhood_id', 'neighborhood.name', 'roomType.type', 'listings.room_type_id', [db.sequelize.fn('COUNT', 'listings.id'), 'count']],
@@ -171,6 +192,274 @@ export const neighborhoodService = {
 		});
 	},
 
+	getAccuracyRatingReportsById: function (neighborhoodId: number): Bluebird<INeighborhoodReportByRating | null> {
+		var promise = db.Listings.findAll({
+			attributes: ['listings.neighborhood_id', 'neighborhood.name', ['review_scores_accuracy', 'rating'], [db.sequelize.fn('COUNT', 'listings.id'), 'count']],
+			include: [
+				{ model: db.Neighborhoods, as: 'neighborhood', attributes: [] }
+			],
+			where: { 'neighborhoodId': neighborhoodId },
+			group: ['listings.neighborhood_id', 'neighborhood.name', 'review_scores_accuracy'],
+			raw: true
+		});
+
+		return promise.then((byPropType: any) => {
+			if (byPropType && byPropType.length > 0) {
+				const ngReport: INeighborhoodReportByRating = {
+					id: byPropType[0].neighborhood_id,
+					name: byPropType[0].name,
+					reports: byPropType.map((r: any) => {
+						return {
+							rating: r.rating,
+							count: r.count,
+						};
+					})
+				};
+				return ngReport;
+			} else {
+				return null;
+			}
+		});
+	},
+
+	getCleanlinessRatingReportsById: function (neighborhoodId: number): Bluebird<INeighborhoodReportByRating | null> {
+		var promise = db.Listings.findAll({
+			attributes: ['listings.neighborhood_id', 'neighborhood.name', ['review_scores_cleanliness', 'rating'], [db.sequelize.fn('COUNT', 'listings.id'), 'count']],
+			include: [
+				{ model: db.Neighborhoods, as: 'neighborhood', attributes: [] }
+			],
+			where: { 'neighborhoodId': neighborhoodId },
+			group: ['listings.neighborhood_id', 'neighborhood.name', 'review_scores_cleanliness'],
+			raw: true
+		});
+
+		return promise.then((byPropType: any) => {
+			if (byPropType && byPropType.length > 0) {
+				const ngReport: INeighborhoodReportByRating = {
+					id: byPropType[0].neighborhood_id,
+					name: byPropType[0].name,
+					reports: byPropType.map((r: any) => {
+						return {
+							rating: r.rating,
+							count: r.count,
+						};
+					})
+				};
+				return ngReport;
+			} else {
+				return null;
+			}
+		});
+	},
+
+	getCheckinRatingReportsById: function (neighborhoodId: number): Bluebird<INeighborhoodReportByRating | null> {
+		var promise = db.Listings.findAll({
+			attributes: ['listings.neighborhood_id', 'neighborhood.name', ['review_scores_checkin', 'rating'], [db.sequelize.fn('COUNT', 'listings.id'), 'count']],
+			include: [
+				{ model: db.Neighborhoods, as: 'neighborhood', attributes: [] }
+			],
+			where: { 'neighborhoodId': neighborhoodId },
+			group: ['listings.neighborhood_id', 'neighborhood.name', 'review_scores_checkin'],
+			raw: true
+		});
+
+		return promise.then((byPropType: any) => {
+			if (byPropType && byPropType.length > 0) {
+				const ngReport: INeighborhoodReportByRating = {
+					id: byPropType[0].neighborhood_id,
+					name: byPropType[0].name,
+					reports: byPropType.map((r: any) => {
+						return {
+							rating: r.rating,
+							count: r.count,
+						};
+					})
+				};
+				return ngReport;
+			} else {
+				return null;
+			}
+		});
+	},
+
+	getCommunicationRatingReportsById: function (neighborhoodId: number): Bluebird<INeighborhoodReportByRating | null> {
+		var promise = db.Listings.findAll({
+			attributes: ['listings.neighborhood_id', 'neighborhood.name', ['review_scores_communication', 'rating'], [db.sequelize.fn('COUNT', 'listings.id'), 'count']],
+			include: [
+				{ model: db.Neighborhoods, as: 'neighborhood', attributes: [] }
+			],
+			where: { 'neighborhoodId': neighborhoodId },
+			group: ['listings.neighborhood_id', 'neighborhood.name', 'review_scores_communication'],
+			raw: true
+		});
+
+		return promise.then((byPropType: any) => {
+			if (byPropType && byPropType.length > 0) {
+				const ngReport: INeighborhoodReportByRating = {
+					id: byPropType[0].neighborhood_id,
+					name: byPropType[0].name,
+					reports: byPropType.map((r: any) => {
+						return {
+							rating: r.rating,
+							count: r.count,
+						};
+					})
+				};
+				return ngReport;
+			} else {
+				return null;
+			}
+		});
+	},
+
+	getLocationRatingReportsById: function (neighborhoodId: number): Bluebird<INeighborhoodReportByRating | null> {
+		var promise = db.Listings.findAll({
+			attributes: ['listings.neighborhood_id', 'neighborhood.name', ['review_scores_location', 'rating'], [db.sequelize.fn('COUNT', 'listings.id'), 'count']],
+			include: [
+				{ model: db.Neighborhoods, as: 'neighborhood', attributes: [] }
+			],
+			where: { 'neighborhoodId': neighborhoodId },
+			group: ['listings.neighborhood_id', 'neighborhood.name', 'review_scores_location'],
+			raw: true
+		});
+
+		return promise.then((byPropType: any) => {
+			if (byPropType && byPropType.length > 0) {
+				const ngReport: INeighborhoodReportByRating = {
+					id: byPropType[0].neighborhood_id,
+					name: byPropType[0].name,
+					reports: byPropType.map((r: any) => {
+						return {
+							rating: r.rating,
+							count: r.count,
+						};
+					})
+				};
+				return ngReport;
+			} else {
+				return null;
+			}
+		});
+	},
+
+	getValueRatingReportsById: function (neighborhoodId: number): Bluebird<INeighborhoodReportByRating | null> {
+		var promise = db.Listings.findAll({
+			attributes: ['listings.neighborhood_id', 'neighborhood.name', ['review_scores_value', 'rating'], [db.sequelize.fn('COUNT', 'listings.id'), 'count']],
+			include: [
+				{ model: db.Neighborhoods, as: 'neighborhood', attributes: [] }
+			],
+			where: { 'neighborhoodId': neighborhoodId },
+			group: ['listings.neighborhood_id', 'neighborhood.name', 'review_scores_value'],
+			raw: true
+		});
+
+		return promise.then((byPropType: any) => {
+			if (byPropType && byPropType.length > 0) {
+				const ngReport: INeighborhoodReportByRating = {
+					id: byPropType[0].neighborhood_id,
+					name: byPropType[0].name,
+					reports: byPropType.map((r: any) => {
+						return {
+							rating: r.rating,
+							count: r.count,
+						};
+					})
+				};
+				return ngReport;
+			} else {
+				return null;
+			}
+		});
+	},
+
+	getPriceReportsById: function (neighborhoodId: number): Bluebird<INeighborhoodPriceReport | null> {
+		var daily = db.Listings.findAll({
+			attributes: [
+				'neighborhood.id',
+				'neighborhood.name',
+				[db.sequelize.fn('AVG', db.sequelize.col('price')), 'avgDailyPrice'],
+			],
+			include: [
+				{ model: db.Neighborhoods, as: 'neighborhood', attributes: [] }
+			],
+			where: { 'neighborhoodId': neighborhoodId, 'price': { [sequelize.Op.ne]: null } },
+			group: ['neighborhood.id', 'neighborhood.name'],
+			raw: true
+		});
+
+		var weekly = db.Listings.findAll({
+			attributes: [
+				'neighborhood.id',
+				'neighborhood.name',
+				[db.sequelize.fn('AVG', db.sequelize.col('weekly_price')), 'avgWeeklyPrice']
+			],
+			include: [
+				{ model: db.Neighborhoods, as: 'neighborhood', attributes: [] }
+			],
+			where: { 'neighborhoodId': neighborhoodId, 'weeklyPrice': { [sequelize.Op.ne]: null } },
+			group: ['neighborhood.id', 'neighborhood.name'],
+			raw: true
+		});
+
+		var monthly = db.Listings.findAll({
+			attributes: [
+				'neighborhood.id',
+				'neighborhood.name',
+				[db.sequelize.fn('AVG',  db.sequelize.col('mountly_price')), 'avgMonthlyPrice'],
+			],
+			include: [
+				{ model: db.Neighborhoods, as: 'neighborhood', attributes: [] }
+			],
+			where: { 'neighborhoodId': neighborhoodId, 'mountlyPrice': { [sequelize.Op.ne]: null } },
+			group: ['neighborhood.id', 'neighborhood.name'],
+			raw: true
+		});
+
+		return Bluebird.all([daily, weekly, monthly]).then(([r1, r2, r3]: any[]) => {
+			if (r1 || r2 || r3) {
+				const ngReport: INeighborhoodPriceReport = {
+					id: r1 ? r1[0].id : 0,
+					name: r1 ? r1[0].name : '',
+					avgDailyPrice: r1[0].avgDailyPrice || 0, 
+					avgWeaklyPrice: r2[0].avgWeeklyPrice || 0,
+					avgMonthlyPrice: r3[0].avgMonthlyPrice || 0,
+				};
+				return ngReport;
+			} else {
+				return null;
+			}
+		});
+	},
+
+	getAllTypesOfRatingReportsById: function (neighborhoodId: number): Bluebird<INeghborhoodReportByAllTypesOfRatingDto | null> {
+		const cleanliness = this.getCleanlinessRatingReportsById(neighborhoodId);
+		const value = this.getValueRatingReportsById(neighborhoodId);
+		const location = this.getLocationRatingReportsById(neighborhoodId);
+		const accuracy = this.getAccuracyRatingReportsById(neighborhoodId);
+		const checkin = this.getCheckinRatingReportsById(neighborhoodId);
+		const communication = this.getCommunicationRatingReportsById(neighborhoodId);
+		const rating = this.getRatingReportsById(neighborhoodId);
+
+		return Bluebird.all([cleanliness, value, location, accuracy, checkin, communication, rating]).then(([r1, r2, r3, r4, r5, r6, r7]) => {
+			if (!r1 && !r2 && !r3 && !r4 && !r5 && !r6 && !r7) {
+				return null;
+			} else {
+				const ngReport: INeghborhoodReportByAllTypesOfRatingDto = {
+					id: r1 ? r1.id : 0,
+					name: r1 ? r1.name : '',
+					cleanliness: r1 ? r1.reports : [],
+					value: r2 ? r2.reports : [],
+					location: r3 ? r3.reports : [],
+					accuracy: r4 ? r4.reports : [],
+					checkin: r5 ? r5.reports : [],
+					communication: r6 ? r6.reports : [],
+					totalRating: r7 ? r7.reports : [],
+				}
+				return ngReport;
+			}
+		});
+	},
+
 	getRatingReportsById: function (neighborhoodId: number): Bluebird<INeighborhoodReportByRating | null> {
 		var promise = db.Listings.findAll({
 			attributes: ['listings.neighborhood_id', 'neighborhood.name', ['review_scores_rating', 'rating'], [db.sequelize.fn('COUNT', 'listings.id'), 'count']],
@@ -190,6 +479,36 @@ export const neighborhoodService = {
 					reports: byPropType.map((r: any) => {
 						return {
 							rating: r.rating,
+							count: r.count,
+						};
+					})
+				};
+				return ngReport;
+			} else {
+				return null;
+			}
+		});
+	},
+
+	getAvailabilityReportsById: function (neighborhoodId: number): Bluebird<INeighborhoodAvailabilityReport | null> {
+		var promise = db.Listings.findAll({
+			attributes: ['listings.neighborhood_id', 'neighborhood.name', 'availability', [db.sequelize.fn('COUNT', 'listings.id'), 'count']],
+			include: [
+				{ model: db.Neighborhoods, as: 'neighborhood', attributes: [] }
+			],
+			where: { 'neighborhoodId': neighborhoodId },
+			group: ['listings.neighborhood_id', 'neighborhood.name', 'availability'],
+			raw: true
+		});
+
+		return promise.then((availability: any) => {
+			if (availability && availability.length > 0) {
+				const ngReport: INeighborhoodAvailabilityReport = {
+					id: availability[0].neighborhood_id,
+					name: availability[0].name,
+					availability: availability.map((r: any) => {
+						return {
+							days: r.availability,
 							count: r.count,
 						};
 					})
@@ -245,7 +564,7 @@ export const neighborhoodService = {
 					let room = byRoomType as INeighborhoodReportByRoomType;
 					let prop = byPropertyType as INeighborhoodReportByPropertyType;
 					let rating = byRating as INeighborhoodReportByRating;
-					
+
 					const reports: INeighborhoodReport = {
 						id: room.id,
 						name: room.name,

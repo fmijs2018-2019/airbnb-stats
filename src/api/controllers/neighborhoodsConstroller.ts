@@ -10,7 +10,16 @@ export default {
             .then((data: INeighborhoodAttributes[]) => {
                 res.json(data);
             })
-    },
+	},
+	
+	getAllSimple: (req: express.Request, res: express.Response): any => {
+		neighborhoodService.getNeighborhoodsSimpleDto()
+			.then(data => {
+				res.json(data);
+			}).catch(err => {
+				res.status(500).send(err);
+			})
+	},
 
     getItem: (req: express.Request, res: express.Response): any => {
         const neighborhoodId: number = req.params['id'];
@@ -38,51 +47,55 @@ export default {
 				if (result === null) {
 					res.status(404).send();
 				} else {
-					res.send(result);
+					res.json(result);
 				}
 			}).catch(err => {
 				res.status(500).send(err);
 			});
+	},
+	
+	getAllTypesOfRatingReportsDetailedByNgId: (req: express.Request, res: express.Response): any => {
+		const neighborhoodId: number = req.params['id'];
 
-        // const byRatingPromise = db.Listings.findAll({
-        //     attributes: [['review_scores_rating', 'rating'], [db.sequelize.fn('COUNT', 'listings.id'), 'count']],
-        //     where: { 'neighborhoodId': neighborhoodId },
-        //     group: ['review_scores_rating'],
-        //     raw: true
-        // });
+		neighborhoodService.getAllTypesOfRatingReportsById(neighborhoodId)
+		.then(result => {
+			if (result === null) {
+				res.status(404).send();
+			} else {
+				res.json(result);
+			}
+		}).catch(err => {
+			res.status(500).send(err);
+		});
+	},
 
-        // const byRoomTypePromise = db.Listings.findAll({
-        //     attributes: ['listings.neighborhood_id', 'neighborhood.name', 'roomType.type', 'roomType.id', [db.sequelize.fn('COUNT', 'listings.id'), 'count']],
-        //     include: [
-		// 		{ model: db.RoomTypes, as: 'roomType', attributes: [] },
-		// 		{ model: db.Neighborhoods, as: 'neighborhood', attributes: [] }
-        //     ],
-        //     where: { 'neighborhoodId': neighborhoodId },
-        //     group: ['roomType.type', 'roomType.id'],
-        //     raw: true
-        // });
+	getAvailabilityReportByNgId: (req: express.Request, res: express.Response): any => {
+		const neighborhoodId: number = req.params['id'];
 
-        // const byPropertyTypePromise = db.Listings.findAll({
-        //     attributes: ['propertyType.type', 'propertyType.id', [db.sequelize.fn('COUNT', 'listings.id'), 'count']],
-        //     include: [
-        //         { model: db.PropertyTypes, as: 'propertyType', attributes: [] }
-        //     ],
-        //     where: { 'neighborhoodId': neighborhoodId },
-        //     group: ['propertyType.type', 'propertyType.id'],
-        //     raw: true
-        // });
+		neighborhoodService.getAvailabilityReportsById(neighborhoodId)
+		.then(result => {
+			if (result === null) {
+				res.status(404).send();
+			} else {
+				res.json(result);
+			}
+		}).catch(err => {
+			res.status(500).send(err);
+		});
+	},
 
-        // Promise.all([byRoomTypePromise, byPropertyTypePromise, byRatingPromise])
-        //     .then(([byRoomType, byPropertyType, byRating]) => {
-        //         const itemReports = {
-		// 			id: neighborhoodId,
-		// 			name: (byRoomType && byRoomType.length) ? byRoomType : '',
-        //             byRoomType,
-        //             byPropertyType,
-        //             byRating
-        //         }
-        //         res.json(itemReports);
-        //     })
-        //     .catch(err => { res.send(err) });
-    },
+	getAvgPriceReportByNgId: (req: express.Request, res: express.Response): any => {
+		const neighborhoodId: number = req.params['id'];
+
+		neighborhoodService.getPriceReportsById(neighborhoodId)
+		.then(result => {
+			if (result === null) {
+				res.status(404).send();
+			} else {
+				res.json(result);
+			}
+		}).catch(err => {
+			res.status(500).send(err);
+		});
+	}
 }
