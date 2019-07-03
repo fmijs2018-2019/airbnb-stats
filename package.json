@@ -27,6 +27,8 @@
     "typescript": "^3.1.6"
   },
   "dependencies": {
+    "@types/bluebird": "^3.5.27",
+    "bluebird": "^3.5.5",
     "body-parser": "^1.18.3",
     "cors": "^2.8.5",
     "dotenv": "^6.1.0",

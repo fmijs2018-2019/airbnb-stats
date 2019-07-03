@@ -6,9 +6,8 @@ import neighborhoodsRouter from './api/routes/neighborhoodsRouter';
 import db, { syncDatabase } from './database/Db';
 import helmet = require('helmet');
 import cors = require('cors');
-import { checkJwt } from './checkJwt';
 
-syncDatabase(db);
+// syncDatabase(db);
 
 const app = express();
 
