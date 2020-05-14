@@ -26,7 +26,6 @@ app.use(function (req, res, next) {
 app.use('/listings', listingsRouter);
 app.use('/neighborhoods', neighborhoodsRouter);
 
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 3000;
 app.listen(port);
-
 console.log(`Server running on http://localhost:${port}`);

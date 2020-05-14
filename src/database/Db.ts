@@ -14,11 +14,12 @@ const database = process.env.DBNAME as string;
 const username = process.env.DBUSER as string;
 const password = process.env.DBPASS as string;
 const hostname = process.env.DBHOSTNAME as string;
+const ssl = +(process.env.USESSL as string) === 1;
 
 export const sequelize = new Sequelize(database, username, password, {
 	dialect: 'postgres',
 	dialectOptions: {
-		ssl: true
+		ssl: ssl
 	},
 	host: hostname,
 	pool: {
